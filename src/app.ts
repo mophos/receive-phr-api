@@ -1,6 +1,7 @@
 /// <reference path="../typings.d.ts" />
 
 require('dotenv').config();
+var mongoose = require('mongoose');
 
 import * as path from 'path';
 import * as logger from 'morgan';
@@ -11,14 +12,11 @@ import * as HttpStatus from 'http-status-codes';
 import * as express from 'express';
 import * as cors from 'cors';
 
-import Knex = require('knex');
-import { MySqlConnectionConfig } from 'knex';
 import { Router, Request, Response, NextFunction } from 'express';
 import { Jwt } from './models/jwt';
 
 import indexRoute from './routes/index';
 import loginRoute from './routes/login';
-import requestRoute from './routes/request';
 
 // Assign router to the express.Router() instance
 const app: express.Application = express();
@@ -39,35 +37,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(cors());
-
-let connection: MySqlConnectionConfig = {
-  host: process.env.DB_HOST,
-  port: +process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  multipleStatements: true,
-  debug: true
-}
-
-let db = Knex({
-  client: 'mysql',
-  connection: connection,
-  pool: {
-    min: 0,
-    max: 100,
-    afterCreate: (conn, done) => {
-      conn.query('SET NAMES utf8', (err) => {
-        done(err, conn);
-      });
-    }
-  },
-});
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  req.db = db;
-  next();
-});
 
 let checkAuth = (req: Request, res: Response, next: NextFunction) => {
   let token: string = null;
@@ -94,7 +63,6 @@ let checkAuth = (req: Request, res: Response, next: NextFunction) => {
 }
 
 app.use('/login', loginRoute);
-app.use('/api', checkAuth, requestRoute);
 app.use('/', indexRoute);
 
 //error handlers

@@ -1,9 +1,8 @@
-import * as Knex from 'knex';
+import * as Express from 'express';
 
 declare module 'express' {
   interface Request {
     db: any // Actually should be something like `multer.Body`
-    knex: Knex,
     decoded: any // Actually should be something like `multer.Files`
   }
 }
