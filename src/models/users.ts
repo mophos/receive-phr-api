@@ -1,31 +1,23 @@
 import { mongoose } from "../config/database";
-import { Document, Model, Schema } from "mongoose";
+import { Document, Schema } from "mongoose";
 
-export interface IUser extends Document {
-  username: String;
+// interface
+interface IUser extends Document {
+  email: String;
   password: String;
+  displayName: String;
 }
 
-export interface IUserModel extends Model<IUser> {
-  findAllByUsername(username: string): Promise<IUser[]>
-}
-
-const schema = new Schema({
-  username: String,
+// schema
+var userSchema = new Schema({
+  email: String,
   password: String,
-  create: {
-    type: Date,
-    "default": Date.now
-  },
-  description: String
+  displayName: String
 });
 
-schema.static("findAllByUsername", (username: string) => {
+// model
+interface IUserModel extends IUser, mongoose.Document { }
 
-  return User
-    .find({ username: username })
-    .select({ _id: 0 })
-    .exec();
-});
+var User = mongoose.model<IUserModel>("Users", userSchema);
 
-export const User = mongoose.model<IUser>("Users", schema) as IUserModel;
+export = User;
