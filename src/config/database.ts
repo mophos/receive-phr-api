@@ -1,9 +1,15 @@
 import * as mongoose from "mongoose";
 
-if (process.env.NODE_ENV === "testing") {
+if (process.env.NODE_ENV === "DEV") {
 
-  var mongoDB = 'mongodb://127.0.0.1:27017/test';
-  mongoose.connect(mongoDB);
+  var mongoDB = `mongodb://${process.env.MONGO_DEV_HOST}:${process.env.MONGO_DEV_PORT}/${process.env.MONGO_DEV_DBNAME}`;
+  mongoose.connect(mongoDB, {
+    useNewUrlParser: true,
+    bufferCommands: false,
+    user: process.env.MONGO_DEV_USER,
+    pass: process.env.MONGO_DEV_PASSWORD
+  });
+
   // Get Mongoose to use the global promise library
   (mongoose as any).Promise = global.Promise;
   //Get the default connection
@@ -12,17 +18,17 @@ if (process.env.NODE_ENV === "testing") {
   db.on('error', console.error.bind(console, 'connection error:'));
   db.once('open', function () {
     // we're connected!
-    console.log('Mongodb connected!');
+    console.log('[DEV] MongoDB connected!');
 
   });
 
 } else {
-  var mongoDB = 'mongodb://127.0.0.1:27017/mydb';
+  var mongoDB = `mongodb://${process.env.MONGO_PROD_HOST}:${process.env.MONGO_PROD_PORT}/${process.env.MONGO_PROD_DBNAME}`;
   mongoose.connect(mongoDB, {
     useNewUrlParser: true,
     bufferCommands: false,
-    user: 'abc',
-    pass: '#def#'
+    user: process.env.MONGO_PROD_USER,
+    pass: process.env.MONGO_PROD_PASSWORD
   });
   // Get Mongoose to use the global promise library
   (mongoose as any).Promise = global.Promise;
@@ -32,7 +38,7 @@ if (process.env.NODE_ENV === "testing") {
   db.on('error', console.error.bind(console, 'connection error:'));
   db.once('open', function () {
     // we're connected!
-    console.log('Mongodb connected!');
+    console.log('[PRODUCTION] MongoDB connected!');
   });
 
 }

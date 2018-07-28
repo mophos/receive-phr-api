@@ -10,11 +10,9 @@ router.get('/', (req: Request, res: Response) => {
   res.send({ ok: true, message: 'Welcome to RESTful api server!', code: HttpStatus.OK });
 });
 
-router.get('/users', (req: Request, res: Response) => {
-  User.findAllByUsername('satit').then((user: IUser[]) => {
-    console.log(user);
-    res.send({ ok: true, rows: user });
-  });
+router.get('/users', async (req: Request, res: Response) => {
+  let user: IUser[] = await User.findAllByUsername('satit');
+  res.send({ ok: true, user });
 });
 
 export default router;

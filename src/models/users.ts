@@ -24,7 +24,7 @@ schema.static("findAllByUsername", (username: string) => {
 
   return User
     .find({ username: username })
-    .lean()
+    .select({ _id: 0 })
     .exec();
 });
 
