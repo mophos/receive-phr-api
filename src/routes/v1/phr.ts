@@ -10,6 +10,7 @@ import PersonalVisitLabDiagnosisInformation = require('../../models/personal_vis
 import PersonalVisitInformation = require('../../models/personal_visit_information');
 import PersonalVisitLab = require('../../models/personal_visit_lab');
 import PersonalVisitLabInformation = require('../../models/personal_visit_lab_information');
+import PersonalVisitOrder = require('../../models/personal_visit_order');
 
 const router: Router = Router();
 // import User = require('../../models/users');
@@ -369,6 +370,85 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
 });
 
 
+router.post('/personal/visit/order', async (req: Request, res: Response) => {
+  try {
+    const decoded: any = req.decoded;
+    const data: any = req.body;
+    if (Array.isArray(data)) {
+      const array = [];
+      for (const i of data) {
+        const obj: any = {};
+        obj.visit_date = i.visit_date;
+        obj.visit_time = i.visit_time;
+        obj.hospcode = i.hospcode;
+        obj.hospname = i.hospname;
+        obj.pid = i.pid;
+        obj.visit_no = i.visit_no
+        obj.source = decoded.source;
+        array.push(obj);
+      }
+      await PersonalVisitOrder.insertMany(array);
+      res.send({ ok: true, message: `Save success ${array.length} record` });
+    } else {
+      const obj: any = {};
+      obj.visit_date = data.visit_date;
+      obj.visit_time = data.visit_time;
+      obj.hospcode = data.hospcode;
+      obj.hospname = data.hospname;
+      obj.pid = data.pid;
+      obj.visit_no = data.visit_no
+      obj.source = decoded.source;
+      await PersonalVisitOrder.insertMany(obj);
+      res.send({ ok: true, message: 'Save success', data: obj });
+    }
+
+  } catch (error) {
+    res.send({ ok: false, message: 'Save Error' });
+  }
+});
+
+router.post('/personal/visit/order/information', async (req: Request, res: Response) => {
+  try {
+    const decoded: any = req.decoded;
+    const data: any = req.body;
+    if (Array.isArray(data)) {
+      const array = [];
+      for (const i of data) {
+        const obj: any = {};
+        obj.visit_date = i.visit_date;
+        obj.visit_time = i.visit_time;
+        obj.hospcode = i.hospcode;
+        obj.hospname = i.hospname;
+        obj.pid = i.pid;
+        obj.visit_no = i.visit_no
+        obj.med_code = i.med_code;
+        obj.med_name = i.med_name;
+        obj.verify_date = i.verify_date;
+        obj.source = decoded.source;
+        array.push(obj);
+      }
+      await PersonalVisitOrder.insertMany(array);
+      res.send({ ok: true, message: `Save success ${array.length} record` });
+    } else {
+      const obj: any = {};
+      obj.visit_date = data.visit_date;
+      obj.visit_time = data.visit_time;
+      obj.hospcode = data.hospcode;
+      obj.hospname = data.hospname;
+      obj.pid = data.pid;
+      obj.visit_no = data.visit_no
+      obj.med_code = data.med_code;
+      obj.med_name = data.med_name;
+      obj.verify_date = data.verify_date;
+      obj.source = decoded.source;
+      await PersonalVisitOrder.insertMany(obj);
+      res.send({ ok: true, message: 'Save success', data: obj });
+    }
+
+  } catch (error) {
+    res.send({ ok: false, message: 'Save Error' });
+  }
+});
 
 
 export default router;
