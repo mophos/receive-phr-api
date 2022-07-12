@@ -4,7 +4,7 @@ import * as HttpStatus from 'http-status-codes';
 
 const router: Router = Router();
 
-import User = require('../models/users');
+import User = require('../models/personal_information');
 
 router.get('/', (req: Request, res: Response) => {
   res.send({ ok: true, message: 'Welcome to RESTful api server!', code: HttpStatus.OK });

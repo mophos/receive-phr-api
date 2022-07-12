@@ -17,6 +17,7 @@ import { Jwt } from './models/jwt';
 
 import indexRoute from './routes/index';
 import loginRoute from './routes/login';
+import phrV1Route from './routes/v1/phr';
 
 // Assign router to the express.Router() instance
 const app: express.Application = express();
@@ -62,12 +63,13 @@ let checkAuth = (req: Request, res: Response, next: NextFunction) => {
     });
 }
 
+app.use('/v1/', phrV1Route);
 app.use('/login', loginRoute);
 app.use('/', indexRoute);
 
 //error handlers
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'DEV') {
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.log(err.stack);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
