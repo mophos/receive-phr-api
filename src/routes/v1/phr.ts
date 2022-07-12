@@ -23,6 +23,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -40,8 +41,13 @@ router.post('/personal/information', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalInformation.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+
+      try {
+        await PersonalInformation.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.pid = data.pid;
@@ -55,11 +61,26 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       obj.phone_number = data.phone_number;
       obj.nationality = data.nationality;
       obj.source = decoded.source;
-      await PersonalInformation.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalInformation.insertMany(obj, { ordered: false });
+      } catch (error) {
+        
+        
+        dup = error.writeErrors.length;
+      }
+
+
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
+
     }
 
   } catch (error) {
+    console.log(error);
+
     res.send({ ok: false, message: 'Save Error' });
   }
 });
@@ -68,6 +89,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -86,8 +108,12 @@ router.post('/personal/information/address', async (req: Request, res: Response)
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalInformationAddress.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalInformationAddress.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.pid = data.pid;
@@ -102,8 +128,16 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       obj.postal_code = data.postal_code;
       obj.full_address = data.full_address;
       obj.source = decoded.source;
-      await PersonalInformationAddress.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalInformationAddress.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -115,6 +149,7 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -128,8 +163,12 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisit.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisit.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.visit_date = data.visit_date;
@@ -139,8 +178,16 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
       obj.pid = data.pid;
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
-      await PersonalVisit.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisit.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -152,6 +199,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -176,8 +224,12 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisitInformation.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisitInformation.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.visit_date = data.visit_date;
@@ -198,8 +250,16 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       obj.rr = data.rr;
       obj.sat_o2 = data.sat_o2;
       obj.source = decoded.source;
-      await PersonalVisitInformation.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisitInformation.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -211,6 +271,7 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -224,8 +285,12 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisitLab.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisitLab.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.visit_date = data.visit_date;
@@ -235,8 +300,16 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
       obj.pid = data.pid;
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
-      await PersonalVisitLab.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisitLab.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -248,6 +321,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -265,8 +339,12 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisitLabInformation.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisitLabInformation.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.hospcode = data.hospcode;
@@ -280,8 +358,16 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       obj.visit_date = data.visit_date;
       obj.visit_time = data.visit_time;
       obj.source = decoded.source;
-      await PersonalVisitLabInformation.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisitLabInformation.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -293,6 +379,7 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -306,8 +393,12 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisitLabDiagnosis.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisitLabDiagnosis.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.visit_date = data.visit_date;
@@ -317,8 +408,16 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
       obj.pid = data.pid;
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
-      await PersonalVisitLabDiagnosis.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisitLabDiagnosis.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -330,6 +429,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -346,8 +446,12 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisitLabDiagnosisInformation.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisitLabDiagnosisInformation.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.visit_date = data.visit_date;
@@ -360,8 +464,16 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       obj.diagnosis_result = data.diagnosis_result;
       obj.diagnosis_date = data.diagnosis_date;
       obj.source = decoded.source;
-      await PersonalVisitLabDiagnosisInformation.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisitLabDiagnosisInformation.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -374,6 +486,7 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -387,8 +500,12 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisitOrder.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisitOrder.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.visit_date = data.visit_date;
@@ -398,8 +515,16 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
       obj.pid = data.pid;
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
-      await PersonalVisitOrder.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisitOrder.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
@@ -411,6 +536,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
   try {
     const decoded: any = req.decoded;
     const data: any = req.body;
+    let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
       for (const i of data) {
@@ -427,8 +553,12 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         obj.source = decoded.source;
         array.push(obj);
       }
-      await PersonalVisitOrder.insertMany(array);
-      res.send({ ok: true, message: `Save success ${array.length} record` });
+      try {
+        await PersonalVisitOrder.insertMany(array, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.visit_date = data.visit_date;
@@ -441,8 +571,16 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       obj.med_name = data.med_name;
       obj.verify_date = data.verify_date;
       obj.source = decoded.source;
-      await PersonalVisitOrder.insertMany(obj);
-      res.send({ ok: true, message: 'Save success', data: obj });
+      try {
+        await PersonalVisitOrder.insertMany(obj, { ordered: false });
+      } catch (error) {
+        dup = error.writeErrors.length;
+      }
+      if (dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
     }
 
   } catch (error) {
