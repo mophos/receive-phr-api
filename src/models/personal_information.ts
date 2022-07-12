@@ -12,12 +12,14 @@ var userSchema = new Schema({
   last_name: String,
   home_phone: String,
   phone_number: String,
-  nationality: String
+  nationality: String,
+  source: String,
+  created_date: { type: Date, default: Date.now }
 }, { versionKey: '_id' });
 
 // model
 // interface IUserModel extends  mongoose.Document { }
 
-var PersonalInformation = mongoose.model("Person", userSchema, 'personal_information');
+var PersonalInformation = mongoose.model("schemaPersonalInformation", userSchema, 'personal_information');
 
 export = PersonalInformation;

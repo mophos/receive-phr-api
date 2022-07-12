@@ -63,7 +63,7 @@ let checkAuth = (req: Request, res: Response, next: NextFunction) => {
     });
 }
 
-app.use('/v1/', phrV1Route);
+app.use('/v1/', checkAuth, phrV1Route);
 app.use('/login', loginRoute);
 app.use('/', indexRoute);
 

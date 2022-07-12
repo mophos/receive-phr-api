@@ -1,0 +1,21 @@
+import { mongoose } from "../config/database";
+import { Document, Schema } from "mongoose";
+
+// schema
+var objSchema = new Schema({
+  visit_date: String,
+  visit_time: String,
+  visit_no: String,
+  hospcode: String,
+  hospname: String,
+  pid: String,
+  source: String,
+  created_date: { type: Date, default: Date.now }
+}, { versionKey: '_id' });
+
+// model
+// interface IUserModel extends  mongoose.Document { }
+
+var PersonalVisitLabDiagnosis = mongoose.model("schemaPersonalVisitLabDiagnosis", objSchema, 'personal_visit_diagnosis');
+
+export = PersonalVisitLabDiagnosis;
