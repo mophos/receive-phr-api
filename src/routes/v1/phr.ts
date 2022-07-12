@@ -29,6 +29,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       for (const i of data) {
         const obj: any = {};
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.birthday = i.birthda;
         obj.blood_group = i.blood_group;
         obj.prename = i.prename;
@@ -45,13 +46,14 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       try {
         await PersonalInformation.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.pid = data.pid;
-      obj.birthday = data.birthda;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
+      obj.birthday = data.birthday;
       obj.blood_group = data.blood_group;
       obj.prename = data.prename;
       obj.first_name = data.first_name;
@@ -64,9 +66,9 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       try {
         await PersonalInformation.insertMany(obj, { ordered: false });
       } catch (error) {
-        
-        
-        dup = error.writeErrors.length;
+
+
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
 
 
@@ -95,6 +97,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       for (const i of data) {
         const obj: any = {};
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.house_no = i.house_no;
         obj.village_no = i.village_no;
         obj.alley = i.alley;
@@ -111,12 +114,13 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       try {
         await PersonalInformationAddress.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.house_no = data.house_no;
       obj.village_no = data.village_no;
       obj.alley = data.alley;
@@ -131,7 +135,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       try {
         await PersonalInformationAddress.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -159,6 +163,7 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -166,7 +171,7 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
       try {
         await PersonalVisit.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -176,12 +181,13 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisit.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -210,6 +216,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
         obj.hospname = i.hospname;
         obj.visit_no = i.visit_no;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.bmi = i.bmi;
         obj.bp = i.bp;
         obj.bt = i.bt;
@@ -227,7 +234,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       try {
         await PersonalVisitInformation.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -238,6 +245,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       obj.hospname = data.hospname;
       obj.visit_no = data.visit_no;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.bmi = data.bmi;
       obj.bp = data.bp;
       obj.bt = data.bt;
@@ -253,7 +261,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       try {
         await PersonalVisitInformation.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -281,6 +289,7 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -288,7 +297,7 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
       try {
         await PersonalVisitLab.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -298,12 +307,13 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisitLab.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -333,6 +343,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
         obj.lab_order_name = i.lab_order_name;
         obj.reporter_name = i.reporter_name;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.visit_no = i.visit_no;
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
@@ -342,7 +353,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       try {
         await PersonalVisitLabInformation.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -354,6 +365,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       obj.lab_order_name = data.lab_order_name;
       obj.reporter_name = data.reporter_name;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no;
       obj.visit_date = data.visit_date;
       obj.visit_time = data.visit_time;
@@ -361,7 +373,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       try {
         await PersonalVisitLabInformation.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -389,6 +401,7 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -396,7 +409,7 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
       try {
         await PersonalVisitLabDiagnosis.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -406,12 +419,13 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisitLabDiagnosis.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -439,6 +453,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.visit_no = i.visit_no
         obj.diagnosis_code = i.diagnosis_code;
         obj.diagnosis_result = i.diagnosis_result;
@@ -449,7 +464,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       try {
         await PersonalVisitLabDiagnosisInformation.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -459,6 +474,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.diagnosis_code = data.diagnosis_code;
       obj.diagnosis_result = data.diagnosis_result;
@@ -467,7 +483,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       try {
         await PersonalVisitLabDiagnosisInformation.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -496,6 +512,7 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -503,7 +520,7 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
       try {
         await PersonalVisitOrder.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -513,12 +530,13 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisitOrder.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
@@ -546,6 +564,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.pid = i.pid;
+        obj.pid_digit = i.pid.substring(12, 13);
         obj.visit_no = i.visit_no
         obj.med_code = i.med_code;
         obj.med_name = i.med_name;
@@ -556,7 +575,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       try {
         await PersonalVisitOrder.insertMany(array, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
@@ -566,6 +585,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.pid = data.pid;
+      obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.med_code = data.med_code;
       obj.med_name = data.med_name;
@@ -574,7 +594,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       try {
         await PersonalVisitOrder.insertMany(obj, { ordered: false });
       } catch (error) {
-        dup = error.writeErrors.length;
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       if (dup) {
         res.send({ ok: true, message: 'Save success', data: obj });

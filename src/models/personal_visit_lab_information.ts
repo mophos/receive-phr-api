@@ -10,6 +10,7 @@ var objSchema = new Schema({
   lab_order_name: String,
   reporter_name: String,
   pid: String,
+pid_digit: String,
   visit_no: String,
   visit_date: String,
   visit_time: String,

@@ -4,6 +4,7 @@ import { Document, Schema } from "mongoose";
 // schema
 var schema = new Schema({
   pid: String,
+  pid_digit: String,
   house_no: String,
   village_no: String,
   alley: String,

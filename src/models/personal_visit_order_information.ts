@@ -8,6 +8,7 @@ var objSchema = new Schema({
   hospcode: String,
   hospname: String,
   pid: String,
+pid_digit: String,
   visit_no: String,
   source: String,
   med_code: String,

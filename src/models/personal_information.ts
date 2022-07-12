@@ -4,6 +4,7 @@ import { Document, Schema } from "mongoose";
 // schema
 var userSchema = new Schema({
   pid: String,
+  pid_digit: String,
   birthday: String,
   blood_group: String,
   prename: String,
