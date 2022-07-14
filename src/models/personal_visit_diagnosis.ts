@@ -17,6 +17,6 @@ pid_digit: String,
 // model
 // interface IUserModel extends  mongoose.Document { }
 
-var PersonalVisitLabDiagnosis = mongoose.model("schemaPersonalVisitLabDiagnosis", objSchema, 'personal_visit_diagnosis');
+var PersonalVisitDiagnosis = mongoose.model("schemaPersonalVisitDiagnosis", objSchema, 'personal_visit_diagnosis');
 
-export = PersonalVisitLabDiagnosis;
+export = PersonalVisitDiagnosis;
