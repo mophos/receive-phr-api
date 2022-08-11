@@ -12,41 +12,43 @@ import PersonalVisitLab = require('../../models/personal_visit_lab');
 import PersonalVisitLabInformation = require('../../models/personal_visit_lab_information');
 import PersonalVisitOrder = require('../../models/personal_visit_order');
 import PersonalVisitOrderInformation = require('../../models/personal_visit_order_information');
-
+import { AlgorithmModel } from './../../models/algorithm';
+const aesjs = require('aes-js');
+const algoritm = new AlgorithmModel();
 const router: Router = Router();
 // import User = require('../../models/users');
 
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const pid = req.query.pid;
-    const info: any = await PersonalInformation.find({ pid: pid }, { _id: 0 });
-    const infoAddress: any = await PersonalInformationAddress.find({ pid: pid }, { _id: 0 });
-    const visit: any = await PersonalVisit.find({ pid: pid }, { _id: 0 });
-    const visitInfo: any = await PersonalVisitInformation.find({ pid: pid }, { _id: 0 });
-    const visitDiagnosis: any = await PersonalVisitDiagnosis.find({ pid: pid }, { _id: 0 });
-    const visitDiagnosisInfo: any = await PersonalVisitDiagnosisInformation.find({ pid: pid }, { _id: 0 });
-    const visitLab: any = await PersonalVisitLab.find({ pid: pid }, { _id: 0 });
-    const visitLabInfo: any = await PersonalVisitLabInformation.find({ pid: pid }, { _id: 0 });
-    const visitOrder: any = await PersonalVisitOrder.find({ pid: pid }, { _id: 0 });
-    const visitOrderInfo: any = await PersonalVisitOrderInformation.find({ pid: pid }, { _id: 0 });
-    const obj: any = {};
-    obj.personal_infomation = info[0];
-    obj.personal_infomation_address = infoAddress;
-    obj.personal_visit = visit
-    obj.personal_visit_information = visitInfo
-    obj.personal_visit_diagnosis = visitDiagnosis
-    obj.personal_visit_diagnosis_information = visitDiagnosisInfo
-    obj.personal_visit_lab = visitLab
-    obj.personal_visit_lab_information = visitLabInfo
-    obj.personal_visit_order = visitOrder
-    obj.personal_visit_order_information = visitOrderInfo
-    // console.log(rs);
+// router.get('/', async (req: Request, res: Response) => {
+//   try {
+//     const pid = req.query.pid;
+//     const info: any = await PersonalInformation.find({ pid: pid }, { _id: 0 });
+//     const infoAddress: any = await PersonalInformationAddress.find({ pid: pid }, { _id: 0 });
+//     const visit: any = await PersonalVisit.find({ pid: pid }, { _id: 0 });
+//     const visitInfo: any = await PersonalVisitInformation.find({ pid: pid }, { _id: 0 });
+//     const visitDiagnosis: any = await PersonalVisitDiagnosis.find({ pid: pid }, { _id: 0 });
+//     const visitDiagnosisInfo: any = await PersonalVisitDiagnosisInformation.find({ pid: pid }, { _id: 0 });
+//     const visitLab: any = await PersonalVisitLab.find({ pid: pid }, { _id: 0 });
+//     const visitLabInfo: any = await PersonalVisitLabInformation.find({ pid: pid }, { _id: 0 });
+//     const visitOrder: any = await PersonalVisitOrder.find({ pid: pid }, { _id: 0 });
+//     const visitOrderInfo: any = await PersonalVisitOrderInformation.find({ pid: pid }, { _id: 0 });
+//     const obj: any = {};
+//     obj.personal_infomation = info[0];
+//     obj.personal_infomation_address = infoAddress;
+//     obj.personal_visit = visit
+//     obj.personal_visit_information = visitInfo
+//     obj.personal_visit_diagnosis = visitDiagnosis
+//     obj.personal_visit_diagnosis_information = visitDiagnosisInfo
+//     obj.personal_visit_lab = visitLab
+//     obj.personal_visit_lab_information = visitLabInfo
+//     obj.personal_visit_order = visitOrder
+//     obj.personal_visit_order_information = visitOrderInfo
+//     // console.log(rs);
 
-    res.send({ ok: true, rows: obj });
-  } catch (error) {
-    res.send({ ok: false, error: error });
-  }
-});
+//     res.send({ ok: true, rows: obj });
+//   } catch (error) {
+//     res.send({ ok: false, error: error });
+//   }
+// });
 
 router.post('/personal/information', async (req: Request, res: Response) => {
   try {
@@ -57,14 +59,14 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       const array = [];
       for (const i of data) {
         const obj: any = {};
-        obj.pid = i.pid;
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
-        obj.birthday = i.birthday;
+        obj.birthday = await algoritm.enCryptAES(i.birthday);
         obj.blood_group = i.blood_group;
         obj.prename = i.prename;
-        obj.first_name = i.first_name;
-        obj.middle_name = i.middle_name;
-        obj.last_name = i.last_name;
+        obj.first_name = await algoritm.enCryptAES(i.first_name);
+        obj.middle_name = await algoritm.enCryptAES(i.middle_name);
+        obj.last_name = await algoritm.enCryptAES(i.last_name);
         obj.home_phone = i.home_phone;
         obj.phone_number = i.phone_number;
         obj.nationality = i.nationality;
@@ -80,7 +82,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.birthday = data.birthday;
       obj.blood_group = data.blood_group;
@@ -125,8 +127,8 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       const array = [];
       for (const i of data) {
         const obj: any = {};
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.house_no = i.house_no;
         obj.village_no = i.village_no;
         obj.alley = i.alley;
@@ -148,7 +150,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.house_no = data.house_no;
       obj.village_no = data.village_no;
@@ -191,8 +193,8 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -209,7 +211,7 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
@@ -244,8 +246,8 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.visit_no = i.visit_no;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.bmi = i.bmi;
         obj.bp = i.bp;
         obj.bt = i.bt;
@@ -273,7 +275,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.visit_no = data.visit_no;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.bmi = data.bmi;
       obj.bp = data.bp;
@@ -317,8 +319,8 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -335,7 +337,7 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
@@ -371,8 +373,8 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
         obj.lab_detail = i.lab_detail;
         obj.lab_order_name = i.lab_order_name;
         obj.reporter_name = i.reporter_name;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no;
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
@@ -393,7 +395,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       obj.lab_detail = data.lab_detail;
       obj.lab_order_name = data.lab_order_name;
       obj.reporter_name = data.reporter_name;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no;
       obj.visit_date = data.visit_date;
@@ -429,8 +431,8 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -447,7 +449,7 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
@@ -481,8 +483,8 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.diagnosis_code = i.diagnosis_code;
         obj.diagnosis_result = i.diagnosis_result;
@@ -502,7 +504,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.diagnosis_code = data.diagnosis_code;
@@ -540,8 +542,8 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
@@ -558,7 +560,7 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
@@ -592,8 +594,8 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = i.pid;
-        obj.pid_digit = i.pid.substring(12, 13);
+        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.med_code = i.med_code;
         obj.med_name = i.med_name;
@@ -613,7 +615,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = data.pid;
+      obj.pid = algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.med_code = data.med_code;
