@@ -23,29 +23,24 @@ export class AlgorithmModel {
   }
 
   enCryptAES(text) {
-    const ENC_KEY = process.env.ENC_KEY
-    const IV = process.env.IV
-    // ENC_KEY and IV can be generated as crypto.randomBytes(32).toString('hex');
+    if (text == null || text == "" || text == undefined) {
+      return null
+    } else {
 
-    const phrase = text;
+      const ENC_KEY = process.env.ENC_KEY
+      const IV = process.env.IV
+      // ENC_KEY and IV can be generated as crypto.randomBytes(32).toString('hex');
 
-    var encrypt = ((val) => {
-      let cipher = crypto.createCipheriv('aes-256-cbc', ENC_KEY, IV);
-      let encrypted = cipher.update(val, 'utf8', 'base64');
-      encrypted += cipher.final('base64');
-      return encrypted;
-    });
-    return  encrypt(phrase);;
+      const phrase = text;
 
-    // var decrypt = ((encrypted) => {
-    //   let decipher = crypto.createDecipheriv('aes-256-cbc', ENC_KEY, IV);
-    //   let decrypted = decipher.update(encrypted, 'base64', 'utf8');
-    //   return (decrypted + decipher.final('utf8'));
-    // });
-
-    // let encrypted_key = encrypt(phrase);
-    // let original_phrase = decrypt(encrypted_key);
-    // console.log(encrypted_key,original_phrase);
+      var encrypt = ((val) => {
+        let cipher = crypto.createCipheriv('aes-256-cbc', ENC_KEY, IV);
+        let encrypted = cipher.update(val, 'utf8', 'base64');
+        encrypted += cipher.final('base64');
+        return encrypted;
+      });
+      return encrypt(phrase);;
+    }
   }
 
 }
