@@ -76,10 +76,17 @@ router.post('/personal/information', async (req: Request, res: Response) => {
 
       try {
         await PersonalInformation.insertMany(array, { ordered: false });
+        res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
       } catch (error) {
-        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
+        console.log(error);
+        try {
+          dup = error.writeErrors.length;
+          res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
+        } catch (error) {
+          dup = 1;
+          res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
+        }
       }
-      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
       obj.pid = algoritm.hashCidDB(data.pid);
