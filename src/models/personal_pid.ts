@@ -4,7 +4,7 @@ import { Document, Schema } from "mongoose";
 // schema
 var objSchema = new Schema({
   pid_api: String,
-  pid_db: String
+  pid: String
 }, { versionKey: '_id' });
 
 // model
