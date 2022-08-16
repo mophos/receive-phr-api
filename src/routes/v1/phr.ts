@@ -43,7 +43,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
         pid.push({
-          pid: pid,
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -122,7 +122,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
         obj.source = decoded.source;
         array.push(obj);
         pid.push({
-          pid: pid,
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -186,7 +186,7 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -256,7 +256,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -326,7 +326,7 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -389,7 +389,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -452,7 +452,7 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -514,7 +514,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -577,7 +577,7 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -639,7 +639,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         obj.source = decoded.source;
         array.push(obj);
          pid.push({
-          pid: pid,
+          pid: pi.id,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
