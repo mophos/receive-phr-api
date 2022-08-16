@@ -185,8 +185,8 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -255,8 +255,8 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
         obj.sat_o2 = i.sat_o2;
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -325,8 +325,8 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -388,8 +388,8 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
         obj.visit_time = i.visit_time;
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -451,8 +451,8 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -513,8 +513,8 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.diagnosis_date = i.diagnosis_date;
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -576,8 +576,8 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
@@ -638,8 +638,8 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         obj.verify_date = i.verify_date;
         obj.source = decoded.source;
         array.push(obj);
-         pid.push({
-          pid: pi.id,
+        pid.push({
+          pid: i.pid,
           pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
