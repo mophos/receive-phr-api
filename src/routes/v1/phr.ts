@@ -29,9 +29,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
-        obj.pid = pidHashDB;
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.birthday = await algoritm.enCryptAES(i.birthday);
         obj.blood_group = i.blood_group;
@@ -45,16 +43,13 @@ router.post('/personal/information', async (req: Request, res: Response) => {
         obj.source = decoded.source;
         array.push(obj);
         pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalInformation.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
         res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
       } catch (error) {
         console.log(error);
@@ -68,7 +63,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       }
     } else {
       const obj: any = {};
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.birthday = data.birthday;
       obj.blood_group = data.blood_group;
@@ -82,6 +77,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       obj.source = decoded.source;
       try {
         await PersonalInformation.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -111,9 +107,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
-        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.house_no = i.house_no;
         obj.village_no = i.village_no;
@@ -128,23 +122,20 @@ router.post('/personal/information/address', async (req: Request, res: Response)
         obj.source = decoded.source;
         array.push(obj);
         pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalInformationAddress.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
       res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
     } else {
       const obj: any = {};
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.house_no = data.house_no;
       obj.village_no = data.village_no;
@@ -159,6 +150,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       obj.source = decoded.source;
       try {
         await PersonalInformationAddress.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -184,28 +176,23 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisit.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -216,12 +203,13 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisit.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -247,14 +235,12 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.visit_no = i.visit_no;
-        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.bmi = i.bmi;
         obj.bp = i.bp;
@@ -269,17 +255,14 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
         obj.sat_o2 = i.sat_o2;
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisitInformation.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -291,7 +274,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
       obj.visit_no = data.visit_no;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.bmi = data.bmi;
       obj.bp = data.bp;
@@ -307,6 +290,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       obj.source = decoded.source;
       try {
         await PersonalVisitInformation.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -332,28 +316,23 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisitLab.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -364,12 +343,13 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisitLab.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -395,8 +375,6 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.lab_code = i.lab_code;
@@ -410,17 +388,14 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
         obj.visit_time = i.visit_time;
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisitLabInformation.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -433,7 +408,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       obj.lab_detail = data.lab_detail;
       obj.lab_order_name = data.lab_order_name;
       obj.reporter_name = data.reporter_name;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no;
       obj.visit_date = data.visit_date;
@@ -441,6 +416,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       obj.source = decoded.source;
       try {
         await PersonalVisitLabInformation.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -466,8 +442,6 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -477,17 +451,14 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisitDiagnosis.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -498,12 +469,13 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisitDiagnosis.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -529,13 +501,11 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.diagnosis_code = i.diagnosis_code;
@@ -543,17 +513,14 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.diagnosis_date = i.diagnosis_date;
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisitDiagnosisInformation.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -564,7 +531,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.diagnosis_code = data.diagnosis_code;
@@ -573,6 +540,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       obj.source = decoded.source;
       try {
         await PersonalVisitDiagnosisInformation.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -599,28 +567,23 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisitOrder.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -631,12 +594,13 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.source = decoded.source;
       try {
         await PersonalVisitOrder.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -662,13 +626,11 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        const pidHashDB = await algoritm.hashCidDB(i.pid);
-        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = algoritm.hashCidDB(i.pid);
+        obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.visit_no = i.visit_no
         obj.med_code = i.med_code;
@@ -676,17 +638,14 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         obj.verify_date = i.verify_date;
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid_db: pidHashDB,
-          pid_api: pidHashAPI
+         pid.push({
+          pid: pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
         })
       }
       try {
-        await PersonalPid.insertMany(pid, { ordered: false });
-      } catch (error) {
-      }
-      try {
         await PersonalVisitOrder.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -697,7 +656,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = algoritm.hashCidDB(data.pid);
+      obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
       obj.visit_no = data.visit_no
       obj.med_code = data.med_code;
@@ -706,6 +665,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       obj.source = decoded.source;
       try {
         await PersonalVisitOrder.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
@@ -721,5 +681,28 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
   }
 });
 
+async function savePIDOne(pid, pidHashAPI) {
+  try {
+    const obj = {
+      pid: pid,
+      pid_api: pidHashAPI
+    };
+    await PersonalPid.insertMany(obj, { ordered: false });
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+async function savePIDMany(data) {
+  try {
+    await PersonalPid.insertMany(data, { ordered: false });
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
 
 export default router;
