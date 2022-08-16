@@ -4,6 +4,7 @@ import { Router, Request, Response } from 'express';
 import * as HttpStatus from 'http-status-codes';
 import PersonalInformation = require('../../models/personal_information');
 import PersonalInformationAddress = require('../../models/personal_information_address');
+import PersonalPid = require('../../models/personal_pid');
 import PersonalVisit = require('../../models/personal_visit');
 import PersonalVisitDiagnosis = require('../../models/personal_visit_diagnosis');
 import PersonalVisitDiagnosisInformation = require('../../models/personal_visit_diagnosis_information');
@@ -16,39 +17,7 @@ import { AlgorithmModel } from './../../models/algorithm';
 const aesjs = require('aes-js');
 const algoritm = new AlgorithmModel();
 const router: Router = Router();
-// import User = require('../../models/users');
 
-// router.get('/', async (req: Request, res: Response) => {
-//   try {
-//     const pid = req.query.pid;
-//     const info: any = await PersonalInformation.find({ pid: pid }, { _id: 0 });
-//     const infoAddress: any = await PersonalInformationAddress.find({ pid: pid }, { _id: 0 });
-//     const visit: any = await PersonalVisit.find({ pid: pid }, { _id: 0 });
-//     const visitInfo: any = await PersonalVisitInformation.find({ pid: pid }, { _id: 0 });
-//     const visitDiagnosis: any = await PersonalVisitDiagnosis.find({ pid: pid }, { _id: 0 });
-//     const visitDiagnosisInfo: any = await PersonalVisitDiagnosisInformation.find({ pid: pid }, { _id: 0 });
-//     const visitLab: any = await PersonalVisitLab.find({ pid: pid }, { _id: 0 });
-//     const visitLabInfo: any = await PersonalVisitLabInformation.find({ pid: pid }, { _id: 0 });
-//     const visitOrder: any = await PersonalVisitOrder.find({ pid: pid }, { _id: 0 });
-//     const visitOrderInfo: any = await PersonalVisitOrderInformation.find({ pid: pid }, { _id: 0 });
-//     const obj: any = {};
-//     obj.personal_infomation = info[0];
-//     obj.personal_infomation_address = infoAddress;
-//     obj.personal_visit = visit
-//     obj.personal_visit_information = visitInfo
-//     obj.personal_visit_diagnosis = visitDiagnosis
-//     obj.personal_visit_diagnosis_information = visitDiagnosisInfo
-//     obj.personal_visit_lab = visitLab
-//     obj.personal_visit_lab_information = visitLabInfo
-//     obj.personal_visit_order = visitOrder
-//     obj.personal_visit_order_information = visitOrderInfo
-//     // console.log(rs);
-
-//     res.send({ ok: true, rows: obj });
-//   } catch (error) {
-//     res.send({ ok: false, error: error });
-//   }
-// });
 
 router.post('/personal/information', async (req: Request, res: Response) => {
   try {
@@ -57,9 +26,12 @@ router.post('/personal/information', async (req: Request, res: Response) => {
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
-        obj.pid = await algoritm.hashCidDB(i.pid);
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
+        obj.pid = pidHashDB;
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.birthday = await algoritm.enCryptAES(i.birthday);
         obj.blood_group = i.blood_group;
@@ -72,8 +44,15 @@ router.post('/personal/information', async (req: Request, res: Response) => {
         obj.nationality = i.nationality;
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
       }
-
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
+      }
       try {
         await PersonalInformation.insertMany(array, { ordered: false });
         res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
@@ -104,13 +83,10 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       try {
         await PersonalInformation.insertMany(obj, { ordered: false });
       } catch (error) {
-
-
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
 
-
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -132,8 +108,11 @@ router.post('/personal/information/address', async (req: Request, res: Response)
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.pid = algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.house_no = i.house_no;
@@ -148,6 +127,14 @@ router.post('/personal/information/address', async (req: Request, res: Response)
         obj.full_address = i.full_address;
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalInformationAddress.insertMany(array, { ordered: false });
@@ -175,7 +162,7 @@ router.post('/personal/information/address', async (req: Request, res: Response)
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -194,8 +181,11 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -205,6 +195,14 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisit.insertMany(array, { ordered: false });
@@ -227,7 +225,7 @@ router.post('/personal/visit', async (req: Request, res: Response) => {
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -246,8 +244,11 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -268,6 +269,14 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
         obj.sat_o2 = i.sat_o2;
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisitInformation.insertMany(array, { ordered: false });
@@ -301,7 +310,7 @@ router.post('/personal/visit/information', async (req: Request, res: Response) =
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -320,8 +329,11 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -331,6 +343,14 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisitLab.insertMany(array, { ordered: false });
@@ -353,7 +373,7 @@ router.post('/personal/visit/lab', async (req: Request, res: Response) => {
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -372,8 +392,11 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
         obj.lab_code = i.lab_code;
@@ -387,6 +410,14 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
         obj.visit_time = i.visit_time;
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisitLabInformation.insertMany(array, { ordered: false });
@@ -413,7 +444,7 @@ router.post('/personal/visit/lab/information', async (req: Request, res: Respons
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -432,8 +463,11 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -443,6 +477,14 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisitDiagnosis.insertMany(array, { ordered: false });
@@ -465,7 +507,7 @@ router.post('/personal/visit/diagnosis', async (req: Request, res: Response) => 
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -484,8 +526,11 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -498,6 +543,14 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.diagnosis_date = i.diagnosis_date;
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisitDiagnosisInformation.insertMany(array, { ordered: false });
@@ -523,7 +576,7 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -543,8 +596,11 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -554,6 +610,14 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
         obj.visit_no = i.visit_no
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisitOrder.insertMany(array, { ordered: false });
@@ -576,7 +640,7 @@ router.post('/personal/visit/order', async (req: Request, res: Response) => {
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
@@ -595,8 +659,11 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
     let dup = 0;
     if (Array.isArray(data)) {
       const array = [];
+      const pid = [];
       for (const i of data) {
         const obj: any = {};
+        const pidHashDB = await algoritm.hashCidDB(i.pid);
+        const pidHashAPI = await algoritm.hashCidAPI(i.pid);
         obj.visit_date = i.visit_date;
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
@@ -609,6 +676,14 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         obj.verify_date = i.verify_date;
         obj.source = decoded.source;
         array.push(obj);
+        pid.push({
+          pid_db: pidHashDB,
+          pid_api: pidHashAPI
+        })
+      }
+      try {
+        await PersonalPid.insertMany(pid, { ordered: false });
+      } catch (error) {
       }
       try {
         await PersonalVisitOrder.insertMany(array, { ordered: false });
@@ -634,7 +709,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
-      if (dup) {
+      if (!dup) {
         res.send({ ok: true, message: 'Save success', data: obj });
       } else {
         res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });

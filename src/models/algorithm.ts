@@ -12,9 +12,6 @@ export class AlgorithmModel {
       // const md5Hash1 = crypto.createHmac("md5", cidMergeSum);
       const md5Hash1 = CryptoJS.MD5(cidMergeSum);
       const md5Hash1String = md5Hash1.toString()
-      console.log(cidMergeSum);
-
-      console.log(md5Hash1String);
       const subSwitch = `${md5Hash1String.substring(md5Hash1String.length - 2, md5Hash1String.length)}${md5Hash1String.substring(2, md5Hash1String.length - 2)}${md5Hash1String.substring(0, 2)}${cid.substring(cid.length - 2, cid.length)}`
       return subSwitch
     } else {
@@ -22,6 +19,17 @@ export class AlgorithmModel {
     }
   }
 
+  hashCidAPI(cid: string) {
+    if (cid.length == 13) {
+      const md5Hash1 = CryptoJS.MD5(cid);
+      const md5Hash1String = md5Hash1.toString();
+      const subSwitch = `${cid.substring(0, 2)}${md5Hash1String}${cid.substring(cid.length - 2, cid.length)}`
+      return subSwitch
+    } else {
+      return null
+    }
+  }
+  
   enCryptAES(text) {
     if (text == null || text == "" || text == undefined) {
       return null
