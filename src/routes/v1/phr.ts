@@ -685,6 +685,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
 router.post('/personal/appointment', async (req: Request, res: Response) => {
   try {
     const decoded: any = req.decoded;
+    const hash = req.query.hash || 'N'
     const data: any = req.body;
     let dup = 0;
     if (Array.isArray(data)) {
@@ -696,8 +697,8 @@ router.post('/personal/appointment', async (req: Request, res: Response) => {
         obj.visit_time = i.visit_time;
         obj.hospcode = i.hospcode;
         obj.hospname = i.hospname;
-        obj.pid = await algoritm.hashCidDB(i.pid);
-        obj.pid_digit = i.pid.toString().substring(12, 13);
+        obj.pid = hash == 'Y' ? i.pid : await algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(i.pid.toString().length - 1, i.pid.toString().length);
         obj.appointment_date = i.appointment_date
         obj.appointment_time = i.appointment_time
         obj.cause = i.cause
@@ -705,10 +706,12 @@ router.post('/personal/appointment', async (req: Request, res: Response) => {
         obj.note = i.note
         obj.source = decoded.source;
         array.push(obj);
-        pid.push({
-          pid: i.pid,
-          pid_api: await algoritm.hashCidAPI(i.pid)
-        })
+        if (hash != 'Y') {
+          pid.push({
+            pid: i.pid,
+            pid_api: await algoritm.hashCidAPI(i.pid)
+          })
+        }
       }
       try {
         await PersonalAppointment.insertMany(array, { ordered: false });
@@ -723,8 +726,8 @@ router.post('/personal/appointment', async (req: Request, res: Response) => {
       obj.visit_time = data.visit_time;
       obj.hospcode = data.hospcode;
       obj.hospname = data.hospname;
-      obj.pid = await algoritm.hashCidDB(data.pid);
-      obj.pid_digit = data.pid.toString().substring(12, 13);
+      obj.pid = hash == 'Y' ? data.pid : await algoritm.hashCidDB(data.pid);
+      obj.pid_digit = data.pid.toString().substring(data.pid.toString().length - 1, data.pid.toString().length);
       obj.appointment_date = data.appointment_date
       obj.appointment_time = data.appointment_time
       obj.cause = data.cause
@@ -733,7 +736,9 @@ router.post('/personal/appointment', async (req: Request, res: Response) => {
       obj.source = decoded.source;
       try {
         await PersonalAppointment.insertMany(obj, { ordered: false });
-        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
+        if(hash != 'Y'){
+          await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
+        }
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
       }
