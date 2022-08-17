@@ -2,6 +2,7 @@
 import * as express from 'express';
 import { Router, Request, Response } from 'express';
 import * as HttpStatus from 'http-status-codes';
+import PersonalAppointment = require('../../models/personal_appointment');
 import PersonalInformation = require('../../models/personal_information');
 import PersonalInformationAddress = require('../../models/personal_information_address');
 import PersonalPid = require('../../models/personal_pid');
@@ -665,6 +666,73 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       obj.source = decoded.source;
       try {
         await PersonalVisitOrder.insertMany(obj, { ordered: false });
+        await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
+      } catch (error) {
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
+      }
+      if (!dup) {
+        res.send({ ok: true, message: 'Save success', data: obj });
+      } else {
+        res.send({ ok: true, message: 'Not Save success But Duplicate', data: obj });
+      }
+    }
+
+  } catch (error) {
+    res.send({ ok: false, message: 'Save Error' });
+  }
+});
+
+router.post('/personal/appointment', async (req: Request, res: Response) => {
+  try {
+    const decoded: any = req.decoded;
+    const data: any = req.body;
+    let dup = 0;
+    if (Array.isArray(data)) {
+      const array = [];
+      const pid = [];
+      for (const i of data) {
+        const obj: any = {};
+        obj.visit_date = i.visit_date;
+        obj.visit_time = i.visit_time;
+        obj.hospcode = i.hospcode;
+        obj.hospname = i.hospname;
+        obj.pid = await algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
+        obj.appointment_date = i.appointment_date
+        obj.appointment_time = i.appointment_time
+        obj.cause = i.cause
+        obj.contact_point = i.contact_point
+        obj.note = i.note
+        obj.source = decoded.source;
+        array.push(obj);
+        pid.push({
+          pid: i.pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
+        })
+      }
+      try {
+        await PersonalAppointment.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
+      } catch (error) {
+        try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
+      }
+      res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
+    } else {
+      const obj: any = {};
+      obj.visit_date = data.visit_date;
+      obj.visit_time = data.visit_time;
+      obj.hospcode = data.hospcode;
+      obj.hospname = data.hospname;
+      obj.pid = await algoritm.hashCidDB(data.pid);
+      obj.pid_digit = data.pid.toString().substring(12, 13);
+      obj.appointment_date = data.appointment_date
+      obj.appointment_time = data.appointment_time
+      obj.cause = data.cause
+      obj.contact_point = data.contact_point
+      obj.note = data.note
+      obj.source = decoded.source;
+      try {
+        await PersonalAppointment.insertMany(obj, { ordered: false });
         await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }

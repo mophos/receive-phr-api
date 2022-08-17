@@ -9,7 +9,11 @@ var objSchema = new Schema({
   hospname: String,
   pid: String,
   pid_digit: String,
-  visit_no: String,
+  appointment_date: String,
+  appointment_time: String,
+  cause: String,
+  contact_point: String,
+  note: String,
   source: String,
   created_date: { type: Date, default: Date.now }
 }, { versionKey: '_id' });
@@ -17,6 +21,6 @@ var objSchema = new Schema({
 // model
 // interface IUserModel extends  mongoose.Document { }
 
-var PersonalVisit = mongoose.model("schemaPersonalVisit", objSchema, 'personal_visit');
+var PersonalAppointment = mongoose.model("schemaPersonalAppointment", objSchema, 'personal_appointment');
 
-export = PersonalVisit;
+export = PersonalAppointment;
