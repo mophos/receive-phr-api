@@ -1,10 +1,14 @@
 /// <reference path="../../../typings.d.ts" />
 import * as express from 'express';
 import { Router, Request, Response } from 'express';
+import e = require('express');
 import * as HttpStatus from 'http-status-codes';
+import { now } from 'moment';
+import moment = require('moment');
 import PersonalAppointment = require('../../models/personal_appointment');
 import PersonalInformation = require('../../models/personal_information');
 import PersonalInformationAddress = require('../../models/personal_information_address');
+import PersonalInformationDopa = require('../../models/personal_information_dopa');
 import PersonalPid = require('../../models/personal_pid');
 import PersonalVisit = require('../../models/personal_visit');
 import PersonalVisitDiagnosis = require('../../models/personal_visit_diagnosis');
@@ -19,6 +23,104 @@ const aesjs = require('aes-js');
 const algoritm = new AlgorithmModel();
 const router: Router = Router();
 
+router.post('/personal/information/dopa', async (req: Request, res: Response) => {
+  try {
+    const decoded: any = req.decoded;
+    const body = req.body;
+    let data;
+    // const data: any = req.body;
+    let dup = 0;
+    // console.log(Array.isArray(data),!Array.isArray(data));
+    
+    if (!Array.isArray(body)) {
+      data = [body];
+    }else{
+      data = body;
+    }
+
+    if (Array.isArray(data)) {
+      const array = [];
+      const pid = [];
+      for (const i of data) {
+        const obj: any = {};
+        obj.pid = await algoritm.hashCidDB(i.pid);
+        obj.pid_digit = i.pid.toString().substring(12, 13);
+        obj.birthday = await algoritm.enCryptAES(i.birthday);
+        obj.prename = i.prename;
+        obj.first_name = await algoritm.enCryptAES(i.first_name);
+        obj.middle_name = await algoritm.enCryptAES(i.middle_name);
+        obj.last_name = await algoritm.enCryptAES(i.last_name);
+        obj.source = decoded.source;
+        array.push(obj);
+        pid.push({
+          pid: i.pid,
+          pid_api: await algoritm.hashCidAPI(i.pid)
+        })
+      }
+      try {
+        await PersonalInformation.insertMany(array, { ordered: false });
+        await savePIDMany(pid);
+        res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
+      } catch (error) {
+        if (error.code === 11000) {
+          // 1- getting duplicates
+          console.log('getting duplicates');
+          if(error.writeErrors){
+            for (const i of error.writeErrors) {
+              // console.log(i.getOperation());
+              const data = i.getOperation();
+              const update = {
+                birthday: data.birthday,
+                prename:data.prename,
+                first_name: data.first_name,
+                middle_name: data.middle_name,
+                last_name: data.last_name,
+                source: data.source
+              }
+              try {
+                await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });
+              } catch (error) {
+                console.log(error);
+              }
+            }
+            dup = error.writeErrors.length;
+          }else{
+            dup = 1;
+            const data = error.getOperation();
+              const update = {
+                birthday: data.birthday,
+                prename:data.prename,
+                first_name: data.first_name,
+                middle_name: data.middle_name,
+                last_name: data.last_name,
+                source: data.source
+              }
+              try {
+                await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });
+              } catch (error) {
+                console.log(error);
+              }
+          }
+          res.send({ ok: true, message: `Insert success ${array.length - dup} record, Update ${dup} record.` });
+        } else {
+          console.log(error);
+          
+          dup = 1;
+          res.send({ ok: true, message: `Insert success ${array.length - dup} record, Update ${dup} record.` });
+        }
+        // console.log(error);
+
+      }
+    } else{
+      res.send({ ok: false, message: 'Save Error' });
+    }
+
+  } catch (error) {
+    console.log(error);
+
+    res.send({ ok: false, message: 'Save Error' });
+  }
+});
 
 router.post('/personal/information', async (req: Request, res: Response) => {
   try {
@@ -66,12 +168,12 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       const obj: any = {};
       obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
-      obj.birthday = data.birthday;
+      obj.birthday = await algoritm.enCryptAES(data.birthday);
       obj.blood_group = data.blood_group;
       obj.prename = data.prename;
-      obj.first_name = data.first_name;
-      obj.middle_name = data.middle_name;
-      obj.last_name = data.last_name;
+      obj.first_name = await algoritm.enCryptAES(data.first_name);
+      obj.middle_name = await algoritm.enCryptAES(data.middle_name);
+      obj.last_name = await algoritm.enCryptAES(data.last_name);
       obj.home_phone = data.home_phone;
       obj.phone_number = data.phone_number;
       obj.nationality = data.nationality;
@@ -736,7 +838,7 @@ router.post('/personal/appointment', async (req: Request, res: Response) => {
       obj.source = decoded.source;
       try {
         await PersonalAppointment.insertMany(obj, { ordered: false });
-        if(hash != 'Y'){
+        if (hash != 'Y') {
           await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
         }
       } catch (error) {
