@@ -747,7 +747,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
         })
       }
       try {
-        await PersonalVisitOrder.insertMany(array, { ordered: false });
+        await PersonalVisitOrderInformation.insertMany(array, { ordered: false });
         await savePIDMany(pid);
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
@@ -767,7 +767,7 @@ router.post('/personal/visit/order/information', async (req: Request, res: Respo
       obj.verify_date = data.verify_date;
       obj.source = decoded.source;
       try {
-        await PersonalVisitOrder.insertMany(obj, { ordered: false });
+        await PersonalVisitOrderInformation.insertMany(obj, { ordered: false });
         await savePIDOne(data.pid, await algoritm.hashCidAPI(data.pid));
       } catch (error) {
         try { dup = error.writeErrors.length; } catch (error) { dup = 1; }
