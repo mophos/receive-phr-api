@@ -9,11 +9,15 @@ var objSchema = new Schema({
   hospcode: String,
   hospname: String,
   pid: String,
-pid_digit: String,
+  pid_digit: String,
   source: String,
   diagnosis_code: String,
   diagnosis_result: String,
   diagnosis_date: String,
+  diagnosis_type: String,
+  visit_type: String,
+  admit_date: String,
+  discharge_date: String,
   created_date: { type: Date, default: Date.now }
 }, { versionKey: '_id' });
 

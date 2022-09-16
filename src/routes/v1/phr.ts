@@ -31,10 +31,10 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
     // const data: any = req.body;
     let dup = 0;
     // console.log(Array.isArray(data),!Array.isArray(data));
-    
+
     if (!Array.isArray(body)) {
       data = [body];
-    }else{
+    } else {
       data = body;
     }
 
@@ -65,13 +65,13 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
         if (error.code === 11000) {
           // 1- getting duplicates
           console.log('getting duplicates');
-          if(error.writeErrors){
+          if (error.writeErrors) {
             for (const i of error.writeErrors) {
               // console.log(i.getOperation());
               const data = i.getOperation();
               const update = {
                 birthday: data.birthday,
-                prename:data.prename,
+                prename: data.prename,
                 first_name: data.first_name,
                 middle_name: data.middle_name,
                 last_name: data.last_name,
@@ -84,34 +84,34 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
               }
             }
             dup = error.writeErrors.length;
-          }else{
+          } else {
             dup = 1;
             const data = error.getOperation();
-              const update = {
-                birthday: data.birthday,
-                prename:data.prename,
-                first_name: data.first_name,
-                middle_name: data.middle_name,
-                last_name: data.last_name,
-                source: data.source
-              }
-              try {
-                await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });
-              } catch (error) {
-                console.log(error);
-              }
+            const update = {
+              birthday: data.birthday,
+              prename: data.prename,
+              first_name: data.first_name,
+              middle_name: data.middle_name,
+              last_name: data.last_name,
+              source: data.source
+            }
+            try {
+              await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });
+            } catch (error) {
+              console.log(error);
+            }
           }
           res.send({ ok: true, message: `Insert success ${array.length - dup} record, Update ${dup} record.` });
         } else {
           console.log(error);
-          
+
           dup = 1;
           res.send({ ok: true, message: `Insert success ${array.length - dup} record, Update ${dup} record.` });
         }
         // console.log(error);
 
       }
-    } else{
+    } else {
       res.send({ ok: false, message: 'Save Error' });
     }
 
@@ -614,6 +614,10 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.diagnosis_code = i.diagnosis_code;
         obj.diagnosis_result = i.diagnosis_result;
         obj.diagnosis_date = i.diagnosis_date;
+        obj.diagnosis_type= i.diagnosis_type;
+        obj.visit_type= i.visit_type;
+        obj.admit_date= i.admit_date;
+        obj.discharge_date= i.discharge_date;
         obj.source = decoded.source;
         array.push(obj);
         pid.push({
@@ -640,6 +644,10 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       obj.diagnosis_code = data.diagnosis_code;
       obj.diagnosis_result = data.diagnosis_result;
       obj.diagnosis_date = data.diagnosis_date;
+      obj.diagnosis_type= data.diagnosis_type;
+      obj.visit_type= data.visit_type;
+      obj.admit_date= data.admit_date;
+      obj.discharge_date= data.discharge_date;
       obj.source = decoded.source;
       try {
         await PersonalVisitDiagnosisInformation.insertMany(obj, { ordered: false });
