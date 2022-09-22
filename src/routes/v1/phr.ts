@@ -81,9 +81,9 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
             dup = 1;
             const data = error.getOperation();
             const update = {
-              birthday:moment(i.birthday,'YYYY-MM-DD').isValid() ? await algoritm.enCryptAES(i.birthday) : null,
-              first_name: await algoritm.enCryptAES(i.first_name),
-              last_name: await algoritm.enCryptAES(i.last_name),
+              birthday:moment(data.birthday,'YYYY-MM-DD').isValid() ? await algoritm.enCryptAES(data.birthday) : null,
+              first_name: await algoritm.enCryptAES(data.first_name),
+              last_name: await algoritm.enCryptAES(data.last_name),
               dopa_date: new Date()
             }
             try {
