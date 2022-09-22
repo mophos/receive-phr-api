@@ -41,6 +41,8 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
       for (const i of data) {
         const obj: any = {};
         obj.pid = await algoritm.hashCidDB(i.pid);
+        console.log(obj.pid);
+        
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.birthday = await algoritm.enCryptAES(i.birthday);
         obj.first_name = await algoritm.enCryptAES(i.first_name);
