@@ -46,9 +46,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
         obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
         obj.birthday = await algoritm.enCryptAES(i.birthday);
-        obj.prename = i.prename;
         obj.first_name = await algoritm.enCryptAES(i.first_name);
-        obj.middle_name = await algoritm.enCryptAES(i.middle_name);
         obj.last_name = await algoritm.enCryptAES(i.last_name);
         obj.source = decoded.source;
         array.push(obj);
@@ -71,9 +69,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
               const data = i.getOperation();
               const update = {
                 birthday: data.birthday,
-                prename: data.prename,
                 first_name: data.first_name,
-                middle_name: data.middle_name,
                 last_name: data.last_name,
                 source: data.source
               }
@@ -89,9 +85,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
             const data = error.getOperation();
             const update = {
               birthday: data.birthday,
-              prename: data.prename,
               first_name: data.first_name,
-              middle_name: data.middle_name,
               last_name: data.last_name,
               source: data.source
             }
