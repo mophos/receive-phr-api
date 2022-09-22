@@ -48,7 +48,6 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
         obj.birthday = await algoritm.enCryptAES(i.birthday);
         obj.first_name = await algoritm.enCryptAES(i.first_name);
         obj.last_name = await algoritm.enCryptAES(i.last_name);
-        obj.source = decoded.source;
         array.push(obj);
         pid.push({
           pid: i.pid,
@@ -56,7 +55,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
         })
       }
       try {
-        await PersonalInformation.insertMany(array, { ordered: false });
+        await PersonalInformationDopa.insertMany(array, { ordered: false });
         await savePIDMany(pid);
         res.send({ ok: true, message: `Save success ${array.length - dup} record, Duplicate ${dup} record.` });
       } catch (error) {
@@ -70,8 +69,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
               const update = {
                 birthday: data.birthday,
                 first_name: data.first_name,
-                last_name: data.last_name,
-                source: data.source
+                last_name: data.last_name
               }
               try {
                 await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });
@@ -86,8 +84,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
             const update = {
               birthday: data.birthday,
               first_name: data.first_name,
-              last_name: data.last_name,
-              source: data.source
+              last_name: data.last_name
             }
             try {
               await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });

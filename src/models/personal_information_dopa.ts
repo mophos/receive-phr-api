@@ -6,9 +6,7 @@ var userSchema = new Schema({
   pid: String,
   pid_digit: String,
   birthday: String,
-  prename: String,
   first_name: String,
-  middle_name: String,
   last_name: String,
   source: String,
   dopa_date: { type: Date, default: Date.now }
