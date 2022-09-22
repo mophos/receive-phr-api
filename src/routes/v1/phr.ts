@@ -34,17 +34,14 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
     } else {
       data = body;
     }
-    console.log(data);
     if (Array.isArray(data)) {
       const array = [];
       const pid = [];
       for (const i of data) {
         const obj: any = {};
-        obj.pid = await algoritm.hashCidDB(i.pid);
-        console.log(obj.pid);
-        
+        obj.pid = await algoritm.hashCidDB(i.pid);       
         obj.pid_digit = i.pid.toString().substring(12, 13);
-        obj.birthday = await algoritm.enCryptAES(i.birthday);
+        obj.birthday = moment(i.birthday,'YYYY-MM-DD').isValid() ? await algoritm.enCryptAES(i.birthday) : null;
         obj.first_name = await algoritm.enCryptAES(i.first_name);
         obj.last_name = await algoritm.enCryptAES(i.last_name);
         obj.dopa_date = new Date()
@@ -68,9 +65,9 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
               // console.log(i.getOperation());
               const data = i.getOperation();
               const update = {
-                birthday: data.birthday,
-                first_name: data.first_name,
-                last_name: data.last_name,
+                birthday:moment(i.birthday,'YYYY-MM-DD').isValid() ? await algoritm.enCryptAES(i.birthday) : null,
+                first_name: await algoritm.enCryptAES(i.first_name),
+                last_name: await algoritm.enCryptAES(i.last_name),
                 dopa_date: new Date()
               }
               try {
@@ -84,9 +81,9 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
             dup = 1;
             const data = error.getOperation();
             const update = {
-              birthday: data.birthday,
-              first_name: data.first_name,
-              last_name: data.last_name,
+              birthday:moment(i.birthday,'YYYY-MM-DD').isValid() ? await algoritm.enCryptAES(i.birthday) : null,
+              first_name: await algoritm.enCryptAES(i.first_name),
+              last_name: await algoritm.enCryptAES(i.last_name),
               dopa_date: new Date()
             }
             try {
@@ -128,7 +125,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
         const obj: any = {};
         obj.pid = await algoritm.hashCidDB(i.pid);
         obj.pid_digit = i.pid.toString().substring(12, 13);
-        obj.birthday = await algoritm.enCryptAES(i.birthday);
+         obj.birthday = moment(i.birthday,'YYYY-MM-DD').isValid() ? await algoritm.enCryptAES(i.birthday) : null;
         obj.blood_group = i.blood_group;
         obj.prename = i.prename;
         obj.first_name = await algoritm.enCryptAES(i.first_name);
@@ -162,7 +159,7 @@ router.post('/personal/information', async (req: Request, res: Response) => {
       const obj: any = {};
       obj.pid = await algoritm.hashCidDB(data.pid);
       obj.pid_digit = data.pid.toString().substring(12, 13);
-      obj.birthday = await algoritm.enCryptAES(data.birthday);
+      obj.birthday = moment(data.birthday,'YYYY-MM-DD').isValid() ? await algoritm.enCryptAES(data.birthday) : null;
       obj.blood_group = data.blood_group;
       obj.prename = data.prename;
       obj.first_name = await algoritm.enCryptAES(data.first_name);
