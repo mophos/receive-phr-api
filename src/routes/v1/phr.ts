@@ -70,7 +70,8 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
               const update = {
                 birthday: data.birthday,
                 first_name: data.first_name,
-                last_name: data.last_name
+                last_name: data.last_name,
+                dopa_date: new Date()
               }
               try {
                 await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });
@@ -85,7 +86,8 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
             const update = {
               birthday: data.birthday,
               first_name: data.first_name,
-              last_name: data.last_name
+              last_name: data.last_name,
+              dopa_date: new Date()
             }
             try {
               await PersonalInformationDopa.updateOne({ pid: data.pid }, { $set: update });
@@ -606,10 +608,10 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
         obj.diagnosis_code = i.diagnosis_code;
         obj.diagnosis_result = i.diagnosis_result;
         obj.diagnosis_date = i.diagnosis_date;
-        obj.diagnosis_type= i.diagnosis_type;
-        obj.visit_type= i.visit_type;
-        obj.admit_date= i.admit_date;
-        obj.discharge_date= i.discharge_date;
+        obj.diagnosis_type = i.diagnosis_type;
+        obj.visit_type = i.visit_type;
+        obj.admit_date = i.admit_date;
+        obj.discharge_date = i.discharge_date;
         obj.source = decoded.source;
         array.push(obj);
         pid.push({
@@ -636,10 +638,10 @@ router.post('/personal/visit/diagnosis/information', async (req: Request, res: R
       obj.diagnosis_code = data.diagnosis_code;
       obj.diagnosis_result = data.diagnosis_result;
       obj.diagnosis_date = data.diagnosis_date;
-      obj.diagnosis_type= data.diagnosis_type;
-      obj.visit_type= data.visit_type;
-      obj.admit_date= data.admit_date;
-      obj.discharge_date= data.discharge_date;
+      obj.diagnosis_type = data.diagnosis_type;
+      obj.visit_type = data.visit_type;
+      obj.admit_date = data.admit_date;
+      obj.discharge_date = data.discharge_date;
       obj.source = decoded.source;
       try {
         await PersonalVisitDiagnosisInformation.insertMany(obj, { ordered: false });
