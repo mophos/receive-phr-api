@@ -34,7 +34,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
     } else {
       data = body;
     }
-
+    console.log(data);
     if (Array.isArray(data)) {
       const array = [];
       const pid = [];
