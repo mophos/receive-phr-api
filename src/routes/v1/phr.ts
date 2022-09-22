@@ -28,10 +28,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
     const decoded: any = req.decoded;
     const body = req.body;
     let data;
-    // const data: any = req.body;
     let dup = 0;
-    // console.log(Array.isArray(data),!Array.isArray(data));
-
     if (!Array.isArray(body)) {
       data = [body];
     } else {
@@ -48,6 +45,7 @@ router.post('/personal/information/dopa', async (req: Request, res: Response) =>
         obj.birthday = await algoritm.enCryptAES(i.birthday);
         obj.first_name = await algoritm.enCryptAES(i.first_name);
         obj.last_name = await algoritm.enCryptAES(i.last_name);
+        obj.dopa_date = new Date()
         obj.source = decoded.source;
         array.push(obj);
         pid.push({
