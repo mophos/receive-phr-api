@@ -13,16 +13,20 @@ import * as express from 'express';
 import * as cors from 'cors';
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Jwt } from './models/jwt';
+import { Jwt } from './models/v1/jwt';
 
 import indexRoute from './routes/index';
 import loginRoute from './routes/login';
 import phrV1Route from './routes/v1/phr';
+import v1_1PersonTelephoneRoute from './routes/v1_1/person_telephone';
+import v1_1PersonEmailRoute from './routes/v1_1/person_email';
+import v1_1IndexRoute from './routes/v1_1/index';
 import didV1Route from './routes/v1/did';
 
 // Assign router to the express.Router() instance
 const app: express.Application = express();
-
+// const compression = require('compression')
+// app.use(compression())
 const jwt = new Jwt();
 
 //view engine setup
@@ -64,6 +68,9 @@ let checkAuth = (req: Request, res: Response, next: NextFunction) => {
     });
 }
 
+app.use('/v1_1/', v1_1IndexRoute);
+app.use('/v1_1/person/telephone', checkAuth, v1_1PersonTelephoneRoute);
+app.use('/v1_1/person/email', checkAuth, v1_1PersonEmailRoute);
 app.use('/v1/', checkAuth, phrV1Route);
 app.use('/v1/did', checkAuth, didV1Route);
 app.use('/login', loginRoute);

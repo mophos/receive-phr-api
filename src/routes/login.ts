@@ -5,7 +5,7 @@ import { Router, Request, Response } from 'express';
 import * as HttpStatus from 'http-status-codes';
 import * as crypto from 'crypto';
 
-import { Jwt } from '../models/jwt';
+import { Jwt } from '../models/v1/jwt';
 
 const jwt = new Jwt();
 
