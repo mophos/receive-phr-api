@@ -1,13 +1,13 @@
 /// <reference path="../../../typings.d.ts" />
-import { Router, Request, Response } from 'express';
 import { CsvModel } from '../../models/v1_1/csv';
 import { HealthIdModel } from '../../models/v1_1/health_id';
+import { Router, Request, Response } from 'express';
 import PersonInfo = require('../../models/v1_1/person_info');
 
-import { ValidatePersonEmailModel } from '../../models/v1_1/validation/person_email';
-const validatePersonEmailModel = new ValidatePersonEmailModel();
-
+import { ValidatePersonDeathModel } from '../../models/v1_1/validation/person_death';
+const validatePersonDeathModel = new ValidatePersonDeathModel();
 const router: Router = Router();
+const Validator = require('jsonschema').Validator;
 const multer = require('multer')
 const path = require('path')
 const fse = require('fs-extra')
@@ -33,11 +33,15 @@ var upload = multer({
     storage: storage,
 })
 
+Validator.prototype.customFormats.cid = function (input) {
+    return input.length == 13 && Number.isInteger(+input);
+};
+
 router.delete('/', async (req: Request, res: Response) => {
     try {
         const decoded: any = req.decoded;
         const data: any = req.body;
-        const rs: any = await removePersonEmail(data);
+        const rs: any = await removePersonDeath(data);
         res.send(rs);
     } catch (error) {
         console.log(error);
@@ -49,7 +53,7 @@ router.post('/', async (req: Request, res: Response) => {
     try {
         const decoded: any = req.decoded;
         const data: any = req.body;
-        const rs: any = await savePersonEmail(decoded.name, data);
+        const rs: any = await savePersonDeath(decoded.name, data);
         res.send(rs);
     } catch (error) {
         console.log(error);
@@ -61,7 +65,7 @@ router.delete('/csv', upload.single('csv'), async (req: Request, res: Response) 
     try {
         const decoded: any = req.decoded;
         const data: any = await csvModel.csvToJSON(req.file.path);
-        const rs: any = await removePersonEmail(data);
+        const rs: any = await removePersonDeath(data);
         res.send(rs);
     } catch (error) {
         console.log(error);
@@ -73,7 +77,7 @@ router.post('/csv', upload.single('csv'), async (req: Request, res: Response) =>
     try {
         const decoded: any = req.decoded;
         const data: any = await csvModel.csvToJSON(req.file.path);
-        const rs: any = await savePersonEmail(decoded.name, data);
+        const rs: any = await savePersonDeath(decoded.name, data);
         res.send(rs);
     } catch (error) {
         console.log(error);
@@ -81,8 +85,8 @@ router.post('/csv', upload.single('csv'), async (req: Request, res: Response) =>
     }
 });
 
-async function removePersonEmail(data) {
-    const validate = await validatePersonEmailModel.validateRemove(data);
+async function removePersonDeath(data) {
+    const validate = await validatePersonDeathModel.validateRemove(data);
     if (!validate.valid) {
         return ({ ok: false, error_code: 'SCHEMA_ERROR', error_message: validate.errors[0] });
     } else {
@@ -90,7 +94,7 @@ async function removePersonEmail(data) {
         if (rs.ok) {
             let batch = PersonInfo.collection.initializeOrderedBulkOp();
             for (const d of rs.rows) {
-                batch.find({ "health_id": d.health_id }).update({ $pull: { "email": d.email } });
+                batch.find({ "health_id": d.health_id }).update({ $unset: { "death": "" } });
             }
             return new Promise((resolve, reject) => {
                 batch.execute(function (err, result) {
@@ -108,8 +112,8 @@ async function removePersonEmail(data) {
     }
 }
 
-async function savePersonEmail(name, data) {
-    const validate = await validatePersonEmailModel.validation(data);
+async function savePersonDeath(name, data) {
+    const validate = await validatePersonDeathModel.validation(data);
     if (!validate.valid) {
         return ({ ok: false, error_code: 'SCHEMA_ERROR', error_message: validate.errors[0] });
     } else {
@@ -117,7 +121,7 @@ async function savePersonEmail(name, data) {
         if (rs.ok) {
             let batch = PersonInfo.collection.initializeOrderedBulkOp();
             for (const d of rs.rows) {
-                batch.find({ "health_id": d.health_id }).upsert().update({ $addToSet: { "email": d.email } });
+                batch.find({ "health_id": d.health_id }).upsert().update({ $set: { "death": { "date_of_death": new Date(d.date_of_death), "cause_of_death": d.cause_of_death, "place_of_death": d.place_of_death } } });
             }
             return new Promise((resolve, reject) => {
                 batch.execute(function (err, result) {
@@ -134,6 +138,8 @@ async function savePersonEmail(name, data) {
         }
     }
 }
+
+
 
 
 export default router;

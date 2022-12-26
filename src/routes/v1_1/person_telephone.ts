@@ -3,6 +3,8 @@ import { CsvModel } from '../../models/v1_1/csv';
 import { HealthIdModel } from '../../models/v1_1/health_id';
 import { Router, Request, Response } from 'express';
 import PersonInfo = require('../../models/v1_1/person_info');
+import { ValidatePersonTelephoneModel } from '../../models/v1_1/validation/person_telephone';
+const validatePersonTelephoneModel = new ValidatePersonTelephoneModel();
 const router: Router = Router();
 const Validator = require('jsonschema').Validator;
 const multer = require('multer')
@@ -56,7 +58,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/csv',  upload.single('csv'),async (req: Request, res: Response) => {
+router.delete('/csv', upload.single('csv'), async (req: Request, res: Response) => {
   try {
     const decoded: any = req.decoded;
     const data: any = await csvModel.csvToJSON(req.file.path);
@@ -81,16 +83,16 @@ router.post('/csv', upload.single('csv'), async (req: Request, res: Response) =>
 });
 
 async function removeTelephone(data) {
-  const validate = await validatePersonInfoRemove(data);
+  const validate = await validatePersonTelephoneModel.validateRemove(data);
   if (!validate.valid) {
     return ({ ok: false, error_code: 'SCHEMA_ERROR', error_message: validate.errors[0] });
   } else {
     const rs: any = await healthIdModel.mappingHealthID(data);
     if (rs.ok) {
       let batch = PersonInfo.collection.initializeOrderedBulkOp();
-      rs.rows.forEach(function (d) {
+      for (const d of rs.rows) {
         batch.find({ "health_id": d.health_id }).update({ $pull: { "telephone": { "no": d.telephone } } });
-      });
+      }
       return new Promise((resolve, reject) => {
         batch.execute(function (err, result) {
           if (err) {
@@ -108,17 +110,17 @@ async function removeTelephone(data) {
 }
 
 async function saveTelephone(name, data) {
-  const validate = await validatePersonInfo(data);
+  const validate = await validatePersonTelephoneModel.validation(data);
   if (!validate.valid) {
     return ({ ok: false, error_code: 'SCHEMA_ERROR', error_message: validate.errors[0] });
   } else {
     const rs: any = await healthIdModel.mappingHealthID(data);
     if (rs.ok) {
       let batch = PersonInfo.collection.initializeOrderedBulkOp();
-      rs.rows.forEach(function (d) {
+      for (const d of rs.rows) {
         batch.find({ "health_id": d.health_id }).update({ $pull: { "telephone": { "no": d.telephone } } });
         batch.find({ "health_id": d.health_id }).upsert().update({ $push: { "telephone": { no: d.telephone, type: d.type, ext: d.ext } } });
-      });
+      }
       return new Promise((resolve, reject) => {
         batch.execute(function (err, result) {
           if (err) {
@@ -136,40 +138,5 @@ async function saveTelephone(name, data) {
   }
 }
 
-async function validatePersonInfo(data: any) {
-  let v = new Validator();
-  let schema = {
-    // "id": "/id",
-    "type": "array",
-    "items": {
-      "type": "object",
-      "properties": {
-        "cid": { "type": "string", "format": "cid" },
-        "telephone": { "type": "string" },
-        "type": { "type": "string", "enum": ["HOME", "MOBILE", "OFFICE"] },
-        "ext": { "type": "string" }
-      }
-    },
-    "required": ["cid", "telephone", "type"]
-  };
-  return v.validate(data, schema);
-}
-
-async function validatePersonInfoRemove(data: any) {
-  let v = new Validator();
-  let schema = {
-    // "id": "/id",
-    "type": "array",
-    "items": {
-      "type": "object",
-      "properties": {
-        "cid": { "type": "string", "format": "cid" },
-        "telephone": { "type": "string" }
-      }
-    },
-    "required": ["cid", "telephone"]
-  };
-  return v.validate(data, schema);
-}
 
 export default router;

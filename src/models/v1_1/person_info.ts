@@ -5,7 +5,8 @@ import { Schema } from "mongoose";
 var objPersonInfo = new Schema({
   "health_id": String,
   "birthdate": String,
-  "gender": String,
+  "gender_code": String,
+  "gender_name": String,
   "rh_blood_group": String,
   "blood_group": String,
   "title_code": String,
@@ -17,22 +18,19 @@ var objPersonInfo = new Schema({
   "nationality_name": String,
   "marital_status_code": String,
   "marital_status_name": String,
-  "viability_code": String,
-  "viability_name": String,
   "death": {
     "date_of_death": String,
     "cause_of_death": String,
     "place_of_death": String
-  }, "telephone": [
+  },
+  "telephone": [
     {
       "no": String,
       "type": String,
       "ext": String
     }
   ],
-  "email": [
-    ""
-  ],
+  "email": Array,
   created_date: { type: Date, default: Date.now }
 }, { versionKey: '_id' });
 
