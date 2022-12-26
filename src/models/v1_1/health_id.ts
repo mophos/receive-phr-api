@@ -5,69 +5,82 @@ const _ = require('lodash');
 const algorithmModel = new AlgorithmModel();
 export class HealthIdModel {
     async mappingHealthID(array) {
-        const healthId = await this.findHealthID(array);
-        const cidNotFoundDB = [];
-        for (const a of array) {
-            const idx = _.findIndex(healthId, { cid_hash: await algorithmModel.hashCidDB(a.cid) });
-            if (idx > -1) {
-                //FOUND
-                a.health_id = healthId[idx].health_id;
-            } else {
-                // NOTFOUND
-                const uuid = v4();
-                a.health_id = uuid;
-                cidNotFoundDB.push({ cid_hash: await algorithmModel.hashCidDB(a.cid), health_id: uuid });
-                // cidNotFoundAPI.push({ cid_api: await hashCidAPI(a.cid) , cid: a.cid });
-                // save mongodb
+        let cidNotFoundDB = [];
+        let retry = 0;
+        do {
+            retry++;
+            cidNotFoundDB = [];
+            const healthId = await this.findHealthID(array);
+            for (const a of array) {
+                const idx = _.findIndex(healthId, { cid_hash: await algorithmModel.hashCidDB(a.cid) });
+                if (idx > -1) {
+                    //FOUND
+                    a.health_id = healthId[idx].health_id;
+                } else {
+                    // NOTFOUND
+                    const uuid = v4();
+                    a.health_id = uuid;
+                    cidNotFoundDB.push({ cid_hash: await algorithmModel.hashCidDB(a.cid), health_id: uuid });
+                    // save mongodb
+                }
             }
-        }
-        let error = false;
-        if (cidNotFoundDB.length) {
-            const resCid = true
-            // const resCid = await saveCid(array, cidNotFoundAPI);
-            const res = await this.saveHealthID(cidNotFoundDB);
-            if (!res || !resCid) {
-                error = true;
+            let error = false;
+            if (cidNotFoundDB.length) {
+                const resCid = true
+                await this.saveHealthID(cidNotFoundDB);
             }
-        }
+            if (retry == 3) {
+                return { ok: false };
+            }
+        } while (cidNotFoundDB.length)
 
-        if (error) {
+        if (cidNotFoundDB.length) {
             return { ok: false };
         } else {
             return { ok: true, rows: array };
         }
     }
-
-    // async mappingHealthID(array) {
-    //     const healthId = await this.findHealthID(array);
-    //     const cidNotFound = [];
-    //     for (const a of array) {
-    //         const idx = _.findIndex(healthId, { cid: a.cid });
-    //         if (idx > -1) {
-    //             //FOUND
-    //             a.health_id = healthId[idx].health_id;
+    //   const inHash = await insertCIDHash(json.rows);
+    //   async insertCIDHash(array) {
+    //     try {
+    //       if (array.length) {
+    //         const db = client.db(process.env.MONGO_DBNAME);
+    //         let batch = [];
+    //         for (const d of array) {
+    //           batch.push({
+    //             replaceOne:
+    //             {
+    //               "filter": {
+    //                 "cid": d.cid,
+    //                 "cid_hash": await algorithmModel.hashCidAPI(d.cid)
+    //               },
+    //               "replacement": {
+    //                 "cid": d.cid,
+    //                 "cid_hash": await algorithmModel.hashCidAPI(d.cid)
+    //               },
+    //               "upsert": true
+    //             }
+    //           })
+    //         }
+    //         if (batch.length) {
+    //           const collection = await db.collection('person_thai_citizen_hash').bulkWrite(batch);
+    //           if (collection.ok) {
+    //             return true;
+    //           } else {
+    //             return false;
+    //           }
     //         } else {
-    //             // NOTFOUND
-    //             const uuid = v4();
-    //             a.health_id = uuid;
-    //             cidNotFound.push({ cid: a.cid.toString(), health_id: uuid });
-    //             // save mongodb
+    //           return false;
     //         }
-    //     }
-    //     let error = false;
-    //     if (cidNotFound.length) {
-    //         const res = await this.saveHealthID(cidNotFound);
-    //         if (!res) {
-    //             error = true;
-    //         }
-    //     }
+    //       } else {
+    //         return true;
+    //       }
 
-    //     if (error) {
-    //         return { ok: false };
-    //     } else {
-    //         return { ok: true, rows: array };
+    //     } catch (error) {
+    //       console.log(error);
+    //       return false;
     //     }
-    // }
+    //   }
 
     async findHealthID(array) {
         try {
@@ -96,5 +109,5 @@ export class HealthIdModel {
         }
     }
 
-    
+
 }
