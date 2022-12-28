@@ -1,5 +1,6 @@
 import PersonThaiCitizen = require("./person_thai_citizen");
 import { AlgorithmModel } from '../../models/v1_1/algorithm';
+import PersonThaiCitizenHash = require("./person_thai_citizen_hash");
 const { v4 } = require('uuid');
 const _ = require('lodash');
 const algorithmModel = new AlgorithmModel();
@@ -11,6 +12,12 @@ export class HealthIdModel {
             retry++;
             cidNotFoundDB = [];
             const healthId = await this.findHealthID(array);
+            const inHash = await this.insertCIDHash(array);
+            if (inHash) {
+
+            } else {
+                return { ok: false, error: 'insert cid_hash Failed!!!' }
+            }
             for (const a of array) {
                 const idx = _.findIndex(healthId, { cid_hash: await algorithmModel.hashCidDB(a.cid) });
                 if (idx > -1) {
@@ -41,46 +48,48 @@ export class HealthIdModel {
         }
     }
     //   const inHash = await insertCIDHash(json.rows);
-    //   async insertCIDHash(array) {
-    //     try {
-    //       if (array.length) {
-    //         const db = client.db(process.env.MONGO_DBNAME);
-    //         let batch = [];
-    //         for (const d of array) {
-    //           batch.push({
-    //             replaceOne:
-    //             {
-    //               "filter": {
-    //                 "cid": d.cid,
-    //                 "cid_hash": await algorithmModel.hashCidAPI(d.cid)
-    //               },
-    //               "replacement": {
-    //                 "cid": d.cid,
-    //                 "cid_hash": await algorithmModel.hashCidAPI(d.cid)
-    //               },
-    //               "upsert": true
-    //             }
-    //           })
-    //         }
-    //         if (batch.length) {
-    //           const collection = await db.collection('person_thai_citizen_hash').bulkWrite(batch);
-    //           if (collection.ok) {
-    //             return true;
-    //           } else {
-    //             return false;
-    //           }
-    //         } else {
-    //           return false;
-    //         }
-    //       } else {
-    //         return true;
-    //       }
+    async insertCIDHash(array) {
+        try {
+            if (array.length) {
+                
+                // const db = client.db(process.env.MONGO_DBNAME);
+                let batch = [];
+                for (const d of array) {
+                    batch.push({
+                        replaceOne:
+                        {
+                            "filter": {
+                                "cid": d.cid,
+                                "cid_hash": await algorithmModel.hashCidAPI(d.cid)
+                            },
+                            "replacement": {
+                                "cid": d.cid,
+                                "cid_hash": await algorithmModel.hashCidAPI(d.cid)
+                            },
+                            "upsert": true
+                        }
+                    })
+                }
+                if (batch.length) {
+                    const collection: any = await PersonThaiCitizenHash.bulkWrite(batch);
+                    // const collection = await db.collection('person_thai_citizen_hash').bulkWrite(batch);
+                    if (collection.ok) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
 
-    //     } catch (error) {
-    //       console.log(error);
-    //       return false;
-    //     }
-    //   }
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
 
     async findHealthID(array) {
         try {
