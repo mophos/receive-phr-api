@@ -32,6 +32,7 @@ import v1_1ServiceIpdRoute from './routes/v1_1/service_ipd';
 import v1_1ServiceIpdDiagnosisRoute from './routes/v1_1/service_ipd_diagnosis';
 import v1_1ServiceIpdDrugRoute from './routes/v1_1/service_ipd_drug';
 import v1_1IndexRoute from './routes/v1_1/index';
+import v1_1File16Route from './routes/v1_1/file16';
 import didV1Route from './routes/v1/did';
 
 // Assign router to the express.Router() instance
@@ -80,6 +81,7 @@ let checkAuth = (req: Request, res: Response, next: NextFunction) => {
 }
 
 app.use('/v1_1/', v1_1IndexRoute);
+app.use('/v1_1/16file', checkAuth, v1_1File16Route);
 app.use('/v1_1/person/telephone', checkAuth, v1_1PersonTelephoneRoute);
 app.use('/v1_1/person/email', checkAuth, v1_1PersonEmailRoute);
 app.use('/v1_1/person/death', checkAuth, v1_1PersonDeathRoute);
