@@ -1,4 +1,4 @@
-import { mongoose } from "../../config/database_16file";
+import { mongoose } from "../../config/database";
 import { Document, Schema } from "mongoose";
 
 // schema
